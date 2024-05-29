@@ -1,6 +1,7 @@
 import random
 import string
 import time
+import pytest
 
 from fixtures.chrome import chrome_browser
 from fixtures.testarena.login import browser
@@ -11,17 +12,23 @@ from pages.project_page import ProjectPage
 
 administrator_email = 'administrator@testarena.pl'
 
+def generate_string(length):
+    characters = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(characters) for _ in range(length))
+    return random_string
+
+
+text_name_project = generate_string(6)
+text_prefix = generate_string(6)
+text_description = generate_string(20)
 
 def test_successful_login(browser):
     home_page = HomePage(browser)
     user_email = home_page.get_current_user_email()
     assert administrator_email == user_email
 
-
+@pytest.fixture
 def test_add_project(browser):
-    text_name_project = 'Projekt A05'
-    text_prefix = generate_string(6)
-    text_description = generate_string(20)
 
     home_page = HomePage(browser)
     home_page.click_administration_panel()
@@ -33,13 +40,10 @@ def test_add_project(browser):
     project_page.verify_project_added(text_name_project)
 
 
-#def test_find_project(browser, text_name_project): --- nie działa, bo nie widzi textu
-    #project_page = ProjectPage(browser)
-    #project_page.verify_project_added(text_name_project)
+def test_find_project(browser,test_add_project):
+
+    project_page = ProjectPage(browser)
+    project_page.verify_project_added(text_name_project)
 
 
 
-def generate_string(length):
-    characters = string.ascii_letters + string.digits
-    random_string = ''.join(random.choice(characters) for _ in range(length))
-    return random_string
